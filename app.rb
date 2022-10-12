@@ -6,14 +6,8 @@ class App
     @request = Rack::Request.new(env)
 
     if valid_path?
-      timeformat = TimeFormat.new(@request.params["format"])
-
-      if timeformat.invalid_format?
-        rack_response(:bad_request, "Unknown time format [#{timeformat.invalid}]")
-      else
-        rack_response(:ok, timeformat.format)
-      end
-
+      @timeformat = TimeFormat.new(@request.params["format"])
+      good_or_bad_responce
     else
       rack_response(:not_found, "Page not found")
     end
@@ -22,10 +16,19 @@ class App
 
   private
 
+  def good_or_bad_responce
+    if @timeformat.invalid_format?
+      rack_response(:bad_request, "Unknown time format [#{timeformat.invalid}]")
+    else
+      rack_response(:ok, @timeformat.format)
+    end
+  end
+
+
   def rack_response(response_message, body)
     [
       Rack::Utils.status_code(response_message),
-      {'Content-Type' => 'text/plain'},
+      {'content-type' => 'text/plain'},
       [body]
     ]
   end
