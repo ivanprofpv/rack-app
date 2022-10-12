@@ -1,26 +1,37 @@
+require_relative 'timeformat'
+
 class App
 
   def call(env)
-    perform_request
-    [status, headers, body]
+    @request = Rack::Request.new(env)
+
+    if valid_path?
+      timeformat = TimeFormat.new(@request.params["format"])
+
+      if timeformat.invalid_format?
+        rack_response(:bad_request, "Unknown time format [#{timeformat.invalid}]")
+      else
+        rack_response(:ok, timeformat.format)
+      end
+
+    else
+      rack_response(:not_found, "Page not found")
+    end
+
   end
 
   private
 
-  def perform_request
-    sleep rand(2..3)
+  def rack_response(response_message, body)
+    [
+      Rack::Utils.status_code(response_message),
+      {'Content-Type' => 'text/plain'},
+      [body]
+    ]
   end
 
-  def status
-    200
-  end
-
-  def headers
-    {'content-type' => 'text/plain'}
-  end
-
-  def body
-    ["Hello World!!!"]
+  def valid_path?
+    @request.path == '/time'
   end
 
 end
