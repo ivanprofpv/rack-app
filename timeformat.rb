@@ -9,28 +9,27 @@ class TimeFormat
   }.freeze
 
   def initialize(formats)
-    @formats = formats.split(',')
+    @formats = formats
+    @valid_formats = []
+    @invalid_formats = []
+  end
+
+  def sort_arrays
+    @formats.split(',').each do |format|
+      TIME_FORMATS[format] ? @valid_formats << TIME_FORMATS[format] : @invalid_formats << format
+    end
   end
 
   def invalid_format?
-    invalid_formats.any?
+    @invalid_formats.empty?
   end
 
   def invalid
-    invalid_formats.join(', ')
+    @invalid_formats.join(', ')
   end
 
   def format
-    Time.now.strftime(valid_formats.join('-'))
+    Time.now.strftime(@valid_formats.join('-'))
   end
 
-  private
-
-  def valid_formats
-    @formats.map { |format| TIME_FORMATS[format] }.compact
-  end
-
-  def invalid_formats
-    @formats.reject { |format| TIME_FORMATS.include?(format) }
-  end
 end

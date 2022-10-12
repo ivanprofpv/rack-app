@@ -7,6 +7,7 @@ class App
 
     if valid_path?
       @timeformat = TimeFormat.new(@request.params["format"])
+      @timeformat.sort_arrays
       good_or_bad_responce
     else
       rack_response(:not_found, "Page not found")
@@ -18,9 +19,9 @@ class App
 
   def good_or_bad_responce
     if @timeformat.invalid_format?
-      rack_response(:bad_request, "Unknown time format [#{timeformat.invalid}]")
-    else
       rack_response(:ok, @timeformat.format)
+    else
+      rack_response(:bad_request, "Unknown time format [#{@timeformat.invalid}]")
     end
   end
 
